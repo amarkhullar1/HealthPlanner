@@ -9,9 +9,11 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import { useAuth } from '../contexts/AuthContext';
 
 const HomeScreen = ({ navigation, route }) => {
   const { planData } = route.params || {};
+  const { logout } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dailyWeight, setDailyWeight] = useState('');
   const [goals, setGoals] = useState({
@@ -20,6 +22,27 @@ const HomeScreen = ({ navigation, route }) => {
     workout: false,
     weight: null,
   });
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   // Calculate daily calorie goal based on user data
   const calculateDailyCalories = (date) => {
@@ -119,8 +142,15 @@ const HomeScreen = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Today's Goals</Text>
-          <Text style={styles.headerDate}>{formatMonthYear(currentDate)}</Text>
+          <View style={styles.headerContent}>
+            <View>
+              <Text style={styles.headerTitle}>Today's Goals</Text>
+              <Text style={styles.headerDate}>{formatMonthYear(currentDate)}</Text>
+            </View>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Current Week */}
@@ -300,8 +330,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    alignItems: 'center',
     marginBottom: 20,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 28,
@@ -312,6 +346,17 @@ const styles = StyleSheet.create({
   headerDate: {
     fontSize: 16,
     color: '#7f8c8d',
+  },
+  logoutButton: {
+    backgroundColor: '#e74c3c',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
   weekCard: {
     backgroundColor: 'white',
