@@ -66,7 +66,7 @@ const GoalScreen = ({ navigation, route }) => {
         targetBMI: calculateBMI(parseFloat(desiredWeight), userDetails.height),
       };
       
-      navigation.navigate('CalendarScreen', { planData });
+      navigation.navigate('MainApp', { planData });
     }
   };
 

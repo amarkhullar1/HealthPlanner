@@ -6,16 +6,26 @@ A React Native app built with Expo SDK 54.0.0 for diet and workout planning.
 
 - **User Onboarding**: Collect user details (age, gender, height, weight)
 - **Goal Setting**: Set desired weight and plan end date
-- **Calendar View**: Weekly calendar with swipe navigation
+- **Home Dashboard**: Daily goals tracking with current week overview
+- **Monthly Calendar**: Full month view with goal achievement visualization
+- **Progress Tracking**: Weight over time and goal achievement analytics
 - **Daily Planning**: View daily calorie goals and meal tracking
-- **Progress Tracking**: Monitor calorie intake and weight loss progress
 
 ## Screens
 
 1. **User Details Screen**: Input age, gender, height, and current weight
 2. **Goal Screen**: Set target weight and plan timeline
-3. **Calendar Screen**: Weekly view with swipe navigation between weeks
-4. **Day Detail Screen**: Daily calorie goals, meal tracking, and recommendations
+3. **Home Screen**: Daily goals dashboard with current week overview
+4. **Monthly Calendar Screen**: Full month view with color-coded goal achievement
+5. **Progress Screen**: Weight tracking and goal achievement analytics
+6. **Day Detail Screen**: Daily calorie goals, meal tracking, and recommendations
+
+## Navigation
+
+The app uses a bottom tab navigation with three main sections:
+- **Home**: Daily goals and current week overview
+- **Calendar**: Monthly calendar view with goal achievement
+- **Progress**: Weight tracking and analytics
 
 ## Technical Details
 
