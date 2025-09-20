@@ -4,3 +4,4 @@ firebase-admin==6.4.0
 python-multipart==0.0.6
 pydantic==2.5.0
 python-jose[cryptography]==3.3.0
+google-cloud-firestore==2.13.1

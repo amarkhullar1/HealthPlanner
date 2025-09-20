@@ -6,6 +6,7 @@ from firebase_admin import credentials, auth
 import os
 from typing import Optional
 import uvicorn
+from firestore_service import firestore_service
 
 # Initialize Firebase Admin SDK
 # In production, you would use a service account key file
@@ -165,9 +166,8 @@ async def save_user_profile(
     Save user profile data for authenticated user
     """
     try:
-        # In a real application, you would save this to a database
-        # For now, we'll just return success
-        print(f"Saving profile for user {user_info['uid']}: {profile.dict()}")
+        # Save to Firestore
+        result = firestore_service.save_user_profile(user_info['uid'], profile.dict())
         
         return {
             "success": True,
@@ -185,26 +185,23 @@ async def get_user_profile(
     Get user profile information
     """
     try:
-        # In a real application, you would fetch from database
-        # For now, return mock data
-        return {
-            "success": True,
-            "user": {
-                "uid": user_info["uid"],
-                "email": user_info["email"]
-            },
-            "profile": {
-                "age": 25,
-                "gender": "Male",
-                "height": 175.0,
-                "weight": 70.0,
-                "desired_weight": 65.0,
-                "end_date": "2024-12-31",
-                "weight_loss": 5.0,
-                "current_bmi": 22.9,
-                "target_bmi": 21.2
+        # Get from Firestore
+        profile_data = firestore_service.get_user_profile(user_info['uid'])
+        
+        if profile_data and 'profile' in profile_data:
+            return {
+                "success": True,
+                "user": {
+                    "uid": user_info["uid"],
+                    "email": user_info["email"]
+                },
+                "profile": profile_data['profile']
             }
-        }
+        else:
+            return {
+                "success": False,
+                "message": "No profile found for user"
+            }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch user profile: {str(e)}")
 
