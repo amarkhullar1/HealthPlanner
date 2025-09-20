@@ -2,17 +2,29 @@ from firebase_admin import firestore
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 class FirestoreService:
     def __init__(self):
         """Initialize Firestore service"""
-        self.db = firestore.client()
+        try:
+            self.db = firestore.client()
+        except Exception as e:
+            logger.error(f"Failed to initialize Firestore client: {str(e)}")
+            # For development, we'll create a mock client
+            self.db = None
+    
+    def _check_db_connection(self):
+        """Check if Firestore is properly initialized"""
+        if self.db is None:
+            raise Exception("Firestore client not initialized. Check Firebase configuration.")
     
     def save_user_profile(self, user_id: str, profile_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save user profile to Firestore"""
         try:
+            self._check_db_connection()
             user_ref = self.db.collection('users').document(user_id)
             user_ref.set({
                 'profile': profile_data,
@@ -27,6 +39,7 @@ class FirestoreService:
     def get_user_profile(self, user_id: str) -> Optional[Dict[str, Any]]:
         """Get user profile from Firestore"""
         try:
+            self._check_db_connection()
             user_ref = self.db.collection('users').document(user_id)
             doc = user_ref.get()
             if doc.exists:
@@ -39,6 +52,7 @@ class FirestoreService:
     def save_daily_log(self, user_id: str, date: str, log_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save daily log to Firestore"""
         try:
+            self._check_db_connection()
             log_ref = self.db.collection('users').document(user_id).collection('dailyLogs').document(date)
             log_ref.set({
                 **log_data,
@@ -54,6 +68,7 @@ class FirestoreService:
     def get_daily_log(self, user_id: str, date: str) -> Optional[Dict[str, Any]]:
         """Get daily log from Firestore"""
         try:
+            self._check_db_connection()
             log_ref = self.db.collection('users').document(user_id).collection('dailyLogs').document(date)
             doc = log_ref.get()
             if doc.exists:
@@ -66,6 +81,7 @@ class FirestoreService:
     def get_daily_logs(self, user_id: str, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get daily logs from Firestore within date range"""
         try:
+            self._check_db_connection()
             logs_ref = self.db.collection('users').document(user_id).collection('dailyLogs')
             query = logs_ref.where('date', '>=', start_date).where('date', '<=', end_date).order_by('date', direction=firestore.Query.DESCENDING)
             docs = query.stream()
@@ -77,6 +93,7 @@ class FirestoreService:
     def save_goal(self, user_id: str, goal_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save goal to Firestore"""
         try:
+            self._check_db_connection()
             goals_ref = self.db.collection('users').document(user_id).collection('goals')
             doc_ref = goals_ref.add({
                 **goal_data,
@@ -91,6 +108,7 @@ class FirestoreService:
     def get_goals(self, user_id: str) -> List[Dict[str, Any]]:
         """Get active goals from Firestore"""
         try:
+            self._check_db_connection()
             goals_ref = self.db.collection('users').document(user_id).collection('goals')
             query = goals_ref.where('status', '==', 'active')
             docs = query.stream()
@@ -102,6 +120,7 @@ class FirestoreService:
     def update_goal(self, user_id: str, goal_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update goal in Firestore"""
         try:
+            self._check_db_connection()
             goal_ref = self.db.collection('users').document(user_id).collection('goals').document(goal_id)
             goal_ref.update({
                 **update_data,
@@ -116,6 +135,7 @@ class FirestoreService:
     def save_workout(self, user_id: str, workout_data: Dict[str, Any]) -> Dict[str, Any]:
         """Save workout to Firestore"""
         try:
+            self._check_db_connection()
             workouts_ref = self.db.collection('users').document(user_id).collection('workouts')
             doc_ref = workouts_ref.add({
                 **workout_data,
@@ -130,6 +150,7 @@ class FirestoreService:
     def get_workouts(self, user_id: str, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get workouts from Firestore within date range"""
         try:
+            self._check_db_connection()
             workouts_ref = self.db.collection('users').document(user_id).collection('workouts')
             query = workouts_ref.where('date', '>=', start_date).where('date', '<=', end_date).order_by('date', direction=firestore.Query.DESCENDING)
             docs = query.stream()
@@ -167,6 +188,7 @@ class FirestoreService:
     def delete_goal(self, user_id: str, goal_id: str) -> Dict[str, Any]:
         """Delete goal from Firestore"""
         try:
+            self._check_db_connection()
             goal_ref = self.db.collection('users').document(user_id).collection('goals').document(goal_id)
             goal_ref.delete()
             logger.info(f"Goal deleted for user {user_id}, goal {goal_id}")
@@ -178,6 +200,7 @@ class FirestoreService:
     def delete_workout(self, user_id: str, workout_id: str) -> Dict[str, Any]:
         """Delete workout from Firestore"""
         try:
+            self._check_db_connection()
             workout_ref = self.db.collection('users').document(user_id).collection('workouts').document(workout_id)
             workout_ref.delete()
             logger.info(f"Workout deleted for user {user_id}, workout {workout_id}")

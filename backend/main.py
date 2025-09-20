@@ -9,14 +9,22 @@ import uvicorn
 from firestore_service import firestore_service
 
 # Initialize Firebase Admin SDK
-# In production, you would use a service account key file
-# For now, we'll use the default credentials
-try:
-    # Try to initialize with default credentials (for local development)
-    firebase_admin.initialize_app()
-except ValueError:
-    # If already initialized, continue
-    pass
+# Check if we're running in Railway (production) or locally
+if os.path.exists('/app/service-account-key.json'):
+    # Railway production environment
+    cred = credentials.Certificate('/app/service-account-key.json')
+    firebase_admin.initialize_app(cred)
+elif os.path.exists('service-account-key.json'):
+    # Local development environment
+    cred = credentials.Certificate('service-account-key.json')
+    firebase_admin.initialize_app(cred)
+else:
+    # Fallback to default credentials (for local development without service account)
+    try:
+        firebase_admin.initialize_app()
+    except ValueError:
+        # If already initialized, continue
+        pass
 
 app = FastAPI(title="Health Planner API", version="1.0.0")
 
@@ -52,51 +60,22 @@ class HealthData(BaseModel):
     steps: int
     calories: int
     workout_completed: bool
-    date: str
 
 class HealthDataResponse(BaseModel):
     success: bool
     message: str
-    data: Optional[HealthData] = None
+    data: HealthData
 
-# Dependency to verify Firebase ID token
-async def verify_firebase_token(authorization: str = Header(None)):
+# Token verification function
+def verify_firebase_token(authorization: str = Header(None)) -> dict:
+    """
+    Verify Firebase ID token from Authorization header
+    """
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header missing")
     
-    try:
-        # Extract token from "Bearer <token>" format
-        token = authorization.split(" ")[1]
-        
-        # Verify the token with Firebase
-        decoded_token = auth.verify_id_token(token)
-        
-        return {
-            "uid": decoded_token["uid"],
-            "email": decoded_token.get("email"),
-            "user_id": decoded_token["uid"]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
-
-@app.get("/")
-async def root():
-    return {"message": "Health Planner API is running!"}
-
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "health-planner-api"}
-
-@app.post("/verify-token", response_model=TokenVerificationResponse)
-async def verify_token(authorization: str = Header(None)):
-    """
-    Verify Firebase ID token
-    """
-    if not authorization:
-        return TokenVerificationResponse(
-            valid=False,
-            error="Authorization header missing"
-        )
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authorization header format")
     
     try:
         token = authorization.split(" ")[1]
@@ -112,6 +91,20 @@ async def verify_token(authorization: str = Header(None)):
             valid=False,
             error=f"Token verification failed: {str(e)}"
         )
+
+@app.get("/")
+async def root():
+    """
+    Health check endpoint
+    """
+    return {"message": "Health Planner API is running!"}
+
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Railway
+    """
+    return {"status": "healthy", "message": "Health Planner API is running!"}
 
 @app.post("/health-data", response_model=HealthDataResponse)
 async def save_health_data(
@@ -206,4 +199,5 @@ async def get_user_profile(
         raise HTTPException(status_code=500, detail=f"Failed to fetch user profile: {str(e)}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
