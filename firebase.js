@@ -2,14 +2,14 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 // Firebase configuration
-// Replace these with your actual Firebase config values
 const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "AIzaSyDT5LrblAwtZ6MPKm_105pf7xqBn7g1EEI",
+  authDomain: "health-planner-bf067.firebaseapp.com",
+  projectId: "health-planner-bf067",
+  storageBucket: "health-planner-bf067.firebasestorage.app",
+  messagingSenderId: "909115902249",
+  appId: "1:909115902249:web:9dfa4f732f9fe6e96b4f38",
+  measurementId: "G-XJ3H4P70R5"
 };
 
 // Initialize Firebase
