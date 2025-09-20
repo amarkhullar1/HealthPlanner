@@ -187,6 +187,12 @@ const firebaseConfig = {
 
 ## 📱 React Native Development Tips
 
+### **New User Flow**
+1. **User Details** → Collect age, gender, height, weight
+2. **Goal Screen** → Set target weight and timeline
+3. **Login/Register** → Create account with collected data
+4. **Main App** → Access personalized health dashboard
+
 ### **Expo Go App**
 - **iOS**: Use Camera app to scan QR code
 - **Android**: Use Expo Go app

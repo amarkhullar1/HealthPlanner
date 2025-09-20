@@ -65,6 +65,14 @@ class ApiService {
     });
   }
 
+  // Save user profile
+  async saveUserProfile(profileData) {
+    return this.makeRequest('/user-profile', {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+  }
+
   // Get user profile
   async getUserProfile() {
     return this.makeRequest('/user-profile', {

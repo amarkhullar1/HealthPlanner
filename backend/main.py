@@ -35,6 +35,17 @@ class TokenVerificationResponse(BaseModel):
     email: Optional[str] = None
     error: Optional[str] = None
 
+class UserProfile(BaseModel):
+    age: int
+    gender: str
+    height: float
+    weight: float
+    desired_weight: float
+    end_date: str
+    weight_loss: float
+    current_bmi: float
+    target_bmi: float
+
 class HealthData(BaseModel):
     weight: float
     steps: int
@@ -145,6 +156,27 @@ async def get_health_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch health data: {str(e)}")
 
+@app.post("/user-profile")
+async def save_user_profile(
+    profile: UserProfile,
+    user_info: dict = Depends(verify_firebase_token)
+):
+    """
+    Save user profile data for authenticated user
+    """
+    try:
+        # In a real application, you would save this to a database
+        # For now, we'll just return success
+        print(f"Saving profile for user {user_info['uid']}: {profile.dict()}")
+        
+        return {
+            "success": True,
+            "message": "User profile saved successfully",
+            "data": profile.dict()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save user profile: {str(e)}")
+
 @app.get("/user-profile")
 async def get_user_profile(
     user_info: dict = Depends(verify_firebase_token)
@@ -152,13 +184,29 @@ async def get_user_profile(
     """
     Get user profile information
     """
-    return {
-        "success": True,
-        "user": {
-            "uid": user_info["uid"],
-            "email": user_info["email"]
+    try:
+        # In a real application, you would fetch from database
+        # For now, return mock data
+        return {
+            "success": True,
+            "user": {
+                "uid": user_info["uid"],
+                "email": user_info["email"]
+            },
+            "profile": {
+                "age": 25,
+                "gender": "Male",
+                "height": 175.0,
+                "weight": 70.0,
+                "desired_weight": 65.0,
+                "end_date": "2024-12-31",
+                "weight_loss": 5.0,
+                "current_bmi": 22.9,
+                "target_bmi": 21.2
+            }
         }
-    }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch user profile: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

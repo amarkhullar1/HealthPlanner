@@ -79,8 +79,8 @@ function MainApp({ route }) {
   );
 }
 
-// Authentication flow component
-function AuthFlow() {
+// Main app flow component
+function AppFlow() {
   const { currentUser } = useAuth();
   
   return (
@@ -90,16 +90,16 @@ function AuthFlow() {
       }}
     >
       {currentUser ? (
-        // User is authenticated, show main app flow
+        // User is authenticated, show main app
         <>
-          <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
-          <Stack.Screen name="GoalScreen" component={GoalScreen} />
           <Stack.Screen name="MainApp" component={MainApp} />
           <Stack.Screen name="DayDetailScreen" component={DayDetailScreen} />
         </>
       ) : (
-        // User is not authenticated, show auth screens
+        // User is not authenticated, show onboarding flow
         <>
+          <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
+          <Stack.Screen name="GoalScreen" component={GoalScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
@@ -113,7 +113,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <NavigationContainer>
-          <AuthFlow />
+          <AppFlow />
         </NavigationContainer>
       </AuthProvider>
     </GestureHandlerRootView>

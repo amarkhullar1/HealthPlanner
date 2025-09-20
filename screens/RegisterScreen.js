@@ -12,8 +12,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import ApiService from '../services/api';
 
-const RegisterScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation, route }) => {
+  const { planData } = route.params || {};
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -51,10 +53,16 @@ const RegisterScreen = ({ navigation }) => {
     try {
       setLoading(true);
       await signup(email, password);
+      
+      // Store user profile data in database
+      if (planData) {
+        await storeUserProfile(planData);
+      }
+      
       Alert.alert(
         'Success!', 
-        'Account created successfully. You can now set up your health profile.',
-        [{ text: 'OK', onPress: () => navigation.navigate('UserDetails') }]
+        'Account created successfully. Your health profile has been saved.',
+        [{ text: 'OK' }]
       );
     } catch (error) {
       let errorMessage = 'Registration failed';
@@ -65,11 +73,26 @@ const RegisterScreen = ({ navigation }) => {
         errorMessage = 'Password is too weak';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address';
+      } else if (error.message && error.message.includes('API')) {
+        errorMessage = 'Failed to save profile data. Please try again.';
       }
       
       Alert.alert('Registration Failed', errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const storeUserProfile = async (profileData) => {
+    try {
+      console.log('Storing user profile:', profileData);
+      
+      // Call API to store profile data
+      await ApiService.saveUserProfile(profileData);
+      console.log('User profile saved successfully');
+    } catch (error) {
+      console.error('Failed to store user profile:', error);
+      throw error; // Re-throw to handle in parent function
     }
   };
 

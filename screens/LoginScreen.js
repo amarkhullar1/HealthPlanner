@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
+  const { planData } = route.params || {};
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const navigateToRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate('Register', { planData });
   };
 
   return (
