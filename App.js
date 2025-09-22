@@ -5,6 +5,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text } from 'react-native';
 
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
 import UserDetailsScreen from './screens/UserDetailsScreen';
 import GoalScreen from './screens/GoalScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -76,22 +79,43 @@ function MainApp({ route }) {
   );
 }
 
+// Main app flow component
+function AppFlow() {
+  const { currentUser } = useAuth();
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {currentUser ? (
+        // User is authenticated, show main app
+        <>
+          <Stack.Screen name="MainApp" component={MainApp} />
+          <Stack.Screen name="DayDetailScreen" component={DayDetailScreen} />
+        </>
+      ) : (
+        // User is not authenticated, show onboarding flow
+        <>
+          <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
+          <Stack.Screen name="GoalScreen" component={GoalScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="UserDetails"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
-          <Stack.Screen name="GoalScreen" component={GoalScreen} />
-          <Stack.Screen name="MainApp" component={MainApp} />
-          <Stack.Screen name="DayDetailScreen" component={DayDetailScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppFlow />
+        </NavigationContainer>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

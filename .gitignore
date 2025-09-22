@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase service account key
+backend/service-account-key.json
+
+__pycache__/
+*.py[cod]
+*$py.class
